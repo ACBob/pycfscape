@@ -8,27 +8,6 @@ import sys
 #VPK, So we can do our stuff!
 import vpk
 
-"""
-pak = vpk.open('/media/owner/BigDevelopment/SourceDevelopmentPipeline/steamapps/common/Half-Life 2/hl2/hl2_pak_dir.vpk')
-
-for filepath in pak:
-    print(filepath)
-
-reqFile = 'shader_cache.cfg'
-
-pakfile = pak[reqFile]
-
-paklines = pakfile.read()
-
-print(paklines)
-
-outFile = open('./{}'.format(reqFile),'wb')
-
-outFile.write(paklines)
-
-outFile.close() #WE MUST CLOSE the file for python to not shit itself.
-"""
-
 class PYCFScape(QMainWindow):
 
     def __init__(self):
@@ -85,6 +64,7 @@ class PYCFScape(QMainWindow):
         outFile = open('{}{}'.format(outputdir,vpkfilepath),'wb') #WB - Write, Bytes
         pakLines = self.VPK[vpkfilepath].read()
         outFile.write(pakLines)
+        outFile.close()
 
     def OpenVPK(self):
         File = self.OpenDialog('Open VPK','Valve Pack Files (*.vpk)')
