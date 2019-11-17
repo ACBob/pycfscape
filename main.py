@@ -159,7 +159,6 @@ class PYCFScape(QMainWindow):
 
         self.DirectoryModel = QStandardItemModel(self.DirectoryList)
         self.DirectoryList.setModel(self.DirectoryModel)
-        self.DirectoryModel.itemChanged.connect(self.on_dir_item_changed)
         
         #Setup Actions
         self.OpenAction = QAction('&Open...',self)
@@ -186,14 +185,6 @@ class PYCFScape(QMainWindow):
 
         #Show ourselves
         self.show()
-
-    def on_dir_item_changed(self,item):
-
-        if not item.checkState():
-            return
-
-        print(item)
-
 
     def ErrorBox(self,text="Message..",title="Error"):
         box = QMessageBox()
