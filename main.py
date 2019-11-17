@@ -76,6 +76,7 @@ from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import QSize, pyqtSlot, Qt
 
 import sys
+import os
 
 #VPK, So we can do our stuff!
 import vpk
@@ -133,6 +134,7 @@ class PYCFScape(QMainWindow):
         
 
     def ExportFile(self,vpkfilepath,outputdir='./'):
+        os.makedirs(os.path.dirname('{}{}'.format(vpkfilepath,outputdir))) #TODO: Makes a folder inside the directory for each file.
         outFile = open('{}{}'.format(outputdir,vpkfilepath),'wb') #WB - Write, Bytes
         pakLines = self.VPK[vpkfilepath].read()
         outFile.write(pakLines)
