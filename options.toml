@@ -1,4 +1,2 @@
 [config]
-
-	path = './'
-	
+path = "./EXPORT/"

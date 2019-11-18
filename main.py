@@ -84,6 +84,8 @@ import vpk
 import pathtodir #Stackoverflow helped me. This time *I* asked the question.
 import json
 
+import options
+
 class VPKItem(QStandardItem):
 
     def __init__(self,info):
@@ -98,6 +100,8 @@ class PYCFScape(QMainWindow):
         self.VPK = None
         self.VPKDir = ''
         self.ExportItems = []
+
+        self.OptionsMenu = options.PYCFScapeOptionsWindow()
 
         self.Setup()
 
@@ -126,7 +130,8 @@ class PYCFScape(QMainWindow):
         for Item in self.ExportItems:
             self.ExportFile(Item.PathInfo)
 
-    def ExportFile(self,file,outputdir='./'):
+    def ExportFile(self,file):
+        outputdir = self.OptionsMenu.Options['config']['path']
         if not os.path.isdir('{}{}'.format(outputdir,'/'.join(file.split('/')[:-1]))):
             print("path {} doesn't exist.".format(file))
             os.makedirs('{}{}'.format(outputdir,'/'.join(file.split('/')[:-1])))
@@ -170,12 +175,17 @@ class PYCFScape(QMainWindow):
         self.ExportAction.setStatusTip('Export Chosen Files')
         self.ExportAction.triggered.connect(self.ExportVPKFiles)
 
+        self.OptionsAction = QAction("&Config")
+        self.OptionsAction.setStatusTip('Change some things')
+        self.OptionsAction.triggered.connect(self.OptionsMenu.show)
 
 
         self.Menu = self.menuBar()
         self.FileMenu = self.Menu.addMenu('&File')
         self.FileMenu.addAction(self.OpenAction)
         self.FileMenu.addAction(self.ExportAction)
+        self.EditMenu = self.Menu.addMenu('&Edit')
+        self.EditMenu.addAction(self.OptionsAction)
         
         #Sort out Layout placements and such.
         self.Content.setLayout(self.ContentLayout)
