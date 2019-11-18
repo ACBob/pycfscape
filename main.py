@@ -71,7 +71,7 @@ THE SOFTWARE.
 """
 
 from PyQt5.QtWidgets import qApp, QAction, QMainWindow, QApplication, QWidget, QToolTip, QPushButton, QToolBar, QSplitter, QHBoxLayout
-from PyQt5.QtWidgets import QFileDialog, QTextEdit, QDialog, QGridLayout, QGroupBox, QLabel, QFontDialog, QMessageBox, QStyleFactory, QFrame, QListView
+from PyQt5.QtWidgets import QFileDialog, QTextEdit, QDialog, QGridLayout, QGroupBox, QLabel, QFontDialog, QMessageBox, QStyleFactory, QFrame, QTreeView
 from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import QSize, pyqtSlot, Qt
 
@@ -81,6 +81,9 @@ import os
 #VPK, So we can do our stuff!
 import vpk
 
+import pathtodir #Stackoverflow helped me. This time *I* asked the question.
+import json
+
 class PYCFScape(QMainWindow):
 
     def __init__(self):
@@ -88,6 +91,7 @@ class PYCFScape(QMainWindow):
 
         self.VPK = None
         self.VPKDir = ''
+        self.VPKStructure = {}
 
         self.Setup()
 
@@ -101,23 +105,18 @@ class PYCFScape(QMainWindow):
             self.ErrorBox(str(E),'File Doesn\'t Exist.')
             self.VPK = None
             self.VPKDir = ''
+            self.VPKStructure = {}
             return
         except ValueError as E:
             self.ErrorBox(str(E))
             self.VPK = None
             self.VPKDir = ''
+            self.VPKStructure = {}
             return
 
         self.VPKDir = file
 
-        for filepath in self.VPK:
-            #print(filepath)
-            item = QStandardItem()
-            item.setText(filepath)
-            item.setCheckable(True)
-            item.setEditable(False)
-
-            self.DirectoryModel.appendRow(item)
+        self.HandleVPK(self.VPK)
 
     def ExportVPKFiles(self):
         print('Exporting files from {}'.format('VPK'))
@@ -148,13 +147,16 @@ class PYCFScape(QMainWindow):
         #Winow Information & Such
         self.setWindowTitle('PYCFScape')
         self.setMinimumSize(QSize(750,500))
+        self.setWindowIcon(QIcon('./res/Icon64.ico'))
 
         #Setup Content Layout & Container
         self.Content = QGroupBox()
         self.ContentLayout = QGridLayout()
 
         #Setup UI Elements
-        self.DirectoryList = QListView()
+        self.DirectoryList = QTreeView()
+        self.DirectoryList.setAlternatingRowColors(True)
+
         self.ContentLayout.addWidget(self.DirectoryList,0,0)
 
         self.DirectoryModel = QStandardItemModel(self.DirectoryList)
@@ -186,6 +188,35 @@ class PYCFScape(QMainWindow):
         #Show ourselves
         self.show()
 
+    def HandleVPK(self,paths):
+        dictPaths = pathtodir.get_path_dict(paths)
+        self.DirectoryMagic(dictPaths)
+
+    def DirectoryMagic(self,path,parent=None):
+        #A Magic function that uses R E C U R S I O N!
+
+        for thing in path:
+
+            #Create our Item variable
+            thingItem = QStandardItem()
+            thingItem.setText(thing)
+
+            thingItem.setEditable(False)
+            thingItem.setIcon(QIcon.fromTheme('document'))
+            thingItem.setCheckable(True)
+            
+            if type(path[thing]) == dict: #If it's a dictionary, it's a folder.
+                thingItem.setIcon(QIcon.fromTheme('folder-new'))
+                self.DirectoryMagic(path[thing],thingItem)
+            if not parent: self.DirectoryModel.appendRow(thingItem)
+            else: parent.appendRow(thingItem)
+
+    def AddFile(self,filePath):
+        path, file = os.path.split(filePath)
+        pathFolders = path.split('/')
+
+        Magic(filePath)
+
     def ErrorBox(self,text="Message..",title="Error"):
         box = QMessageBox()
         box.setIcon(QMessageBox.Critical)
@@ -201,13 +232,6 @@ class PYCFScape(QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, title, "", files, options=options)
 
         return filename
-
-
-def column(ItemModel, c): #Utility to get row from QStandardItemModel
-    tempModel = ItemModel
-    return tempModel.takeColumn(c)
-    
-
 
 def main():
     app = QApplication(sys.argv)
