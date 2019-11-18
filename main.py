@@ -84,6 +84,12 @@ import vpk
 import pathtodir #Stackoverflow helped me. This time *I* asked the question.
 import json
 
+class VPKItem(QStandardItem):
+
+    def __init__(self,info):
+        super().__init__()
+        self.PathInfo = info
+
 class PYCFScape(QMainWindow):
 
     def __init__(self):
@@ -91,27 +97,23 @@ class PYCFScape(QMainWindow):
 
         self.VPK = None
         self.VPKDir = ''
-        self.VPKStructure = {}
+        self.ExportItems = []
 
         self.Setup()
 
     def LoadVPK(self,file):
         print('Opening {}'.format(file))
         self.DirectoryModel.clear()
+        self.ExportItems = []
+        self.VPK = None
 
         try:
             self.VPK = vpk.open(file)
         except FileNotFoundError as E:
             self.ErrorBox(str(E),'File Doesn\'t Exist.')
-            self.VPK = None
-            self.VPKDir = ''
-            self.VPKStructure = {}
             return
         except ValueError as E:
             self.ErrorBox(str(E))
-            self.VPK = None
-            self.VPKDir = ''
-            self.VPKStructure = {}
             return
 
         self.VPKDir = file
@@ -121,23 +123,16 @@ class PYCFScape(QMainWindow):
     def ExportVPKFiles(self):
         print('Exporting files from {}'.format('VPK'))
 
-        Directories = column(self.DirectoryModel,0)
-        print(Directories)
-        for Item in Directories:
-            #print(Item)
-            if Item.checkState():
-                print(Item)
-                self.ExportFile(Item.text())
+        for Item in self.ExportItems:
+            self.ExportFile(Item)
 
-        self.LoadVPK(self.VPKDir) #HACK! we currently DELETE everything in the list (have to) and then re-load it.
-        
-
-    def ExportFile(self,vpkfilepath,outputdir='./'):
-        os.makedirs(os.path.dirname('{}{}'.format(vpkfilepath,outputdir))) #TODO: Makes a folder inside the directory for each file.
-        outFile = open('{}{}'.format(outputdir,vpkfilepath),'wb') #WB - Write, Bytes
-        pakLines = self.VPK[vpkfilepath].read()
+    def ExportFile(self,file,outputdir='./'):
+        #os.makedirs(os.path.dirname('{}'.format(outputdir))) #TODO: Makes a folder inside the directory for each file.
+        outFile = open('{}'.format(outputdir),'wb') #WB - Write, Bytes
+        pakLines = self.VPK[file.PathInfo[1:]].read()
         outFile.write(pakLines)
         outFile.close()
+        pakLines.close()
 
     def OpenVPK(self):
         File = self.OpenDialog('Open VPK','Valve Pack Files (*.vpk)')
@@ -183,7 +178,9 @@ class PYCFScape(QMainWindow):
         #Sort out Layout placements and such.
         self.Content.setLayout(self.ContentLayout)
         self.setCentralWidget(self.Content)
-        
+
+
+        self.DirectoryModel.itemChanged.connect(self.VPKItemClicked)
 
         #Show ourselves
         self.show()
@@ -192,13 +189,21 @@ class PYCFScape(QMainWindow):
         dictPaths = pathtodir.get_path_dict(paths)
         self.DirectoryMagic(dictPaths)
 
-    def DirectoryMagic(self,path,parent=None):
+    def VPKItemClicked(self,item):
+        if item.checkState():
+            self.ExportItems.append(item)
+        else:
+            self.ExportItems.remove(item)
+
+    def DirectoryMagic(self,path,parent=None,wPath=''):
         #A Magic function that uses R E C U R S I O N!
 
         for thing in path:
 
+            wwPath = wPath+'/{}'.format(thing)
+
             #Create our Item variable
-            thingItem = QStandardItem()
+            thingItem = VPKItem(wwPath)
             thingItem.setText(thing)
 
             thingItem.setEditable(False)
@@ -207,7 +212,7 @@ class PYCFScape(QMainWindow):
             
             if type(path[thing]) == dict: #If it's a dictionary, it's a folder.
                 thingItem.setIcon(QIcon.fromTheme('folder-new'))
-                self.DirectoryMagic(path[thing],thingItem)
+                self.DirectoryMagic(path[thing],thingItem,wwPath)
             if not parent: self.DirectoryModel.appendRow(thingItem)
             else: parent.appendRow(thingItem)
 
