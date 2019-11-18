@@ -124,15 +124,17 @@ class PYCFScape(QMainWindow):
         print('Exporting files from {}'.format('VPK'))
 
         for Item in self.ExportItems:
-            self.ExportFile(Item)
+            self.ExportFile(Item.PathInfo[1:])
 
     def ExportFile(self,file,outputdir='./'):
-        #os.makedirs(os.path.dirname('{}'.format(outputdir))) #TODO: Makes a folder inside the directory for each file.
-        outFile = open('{}'.format(outputdir),'wb') #WB - Write, Bytes
-        pakLines = self.VPK[file.PathInfo[1:]].read()
+        if not os.path.isdir('/'.join(file.split('/')[:-1])):
+            print("path {} doesn't exist.".format(file))
+            os.makedirs('{}{}'.format(outputdir,'/'.join(file.split('/')[:-1])))
+        print(file)
+        outFile = open('{}{}'.format(outputdir,file[1:]),'wb') #WB - Write, Bytes
+        pakLines = self.VPK[file].read()
         outFile.write(pakLines)
         outFile.close()
-        pakLines.close()
 
     def OpenVPK(self):
         File = self.OpenDialog('Open VPK','Valve Pack Files (*.vpk)')
