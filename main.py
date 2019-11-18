@@ -124,15 +124,15 @@ class PYCFScape(QMainWindow):
         print('Exporting files from {}'.format('VPK'))
 
         for Item in self.ExportItems:
-            self.ExportFile(Item.PathInfo[1:])
+            self.ExportFile(Item.PathInfo)
 
     def ExportFile(self,file,outputdir='./'):
-        if not os.path.isdir('/'.join(file.split('/')[:-1])):
+        if not os.path.isdir('{}{}'.format(outputdir,'/'.join(file.split('/')[:-1]))):
             print("path {} doesn't exist.".format(file))
             os.makedirs('{}{}'.format(outputdir,'/'.join(file.split('/')[:-1])))
         print(file)
         outFile = open('{}{}'.format(outputdir,file[1:]),'wb') #WB - Write, Bytes
-        pakLines = self.VPK[file].read()
+        pakLines = self.VPK.get_file(file[1:]).read()
         outFile.write(pakLines)
         outFile.close()
 
