@@ -220,11 +220,12 @@ class PYCFScape(QMainWindow):
 
             thingItem.setEditable(False)
             thingItem.setIcon(QIcon.fromTheme('document'))
-            thingItem.setCheckable(True)
             
             if type(path[thing]) == dict: #If it's a dictionary, it's a folder.
                 thingItem.setIcon(QIcon.fromTheme('folder-new'))
                 self.DirectoryMagic(path[thing],thingItem,wwPath)
+            else:
+                thingItem.setCheckable(True)
             if not parent: self.DirectoryModel.appendRow(thingItem)
             else: parent.appendRow(thingItem)
 
