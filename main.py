@@ -88,9 +88,18 @@ import options
 
 class VPKItem(QStandardItem):
 
-    def __init__(self,info):
+    def __init__(self,info,ItemType=''):
         super().__init__()
         self.PathInfo = info
+        self.VPKItemType = ItemType
+        self.VPKChildren = []
+
+    def setType(self,Type):
+        self.VPKItemType = Type
+
+    def appendRow(self,thing):
+        super().appendRow(thing)
+        self.VPKChildren.append(thing)
 
 class PYCFScape(QMainWindow):
 
@@ -202,10 +211,24 @@ class PYCFScape(QMainWindow):
         self.DirectoryMagic(dictPaths)
 
     def VPKItemClicked(self,item):
-        if item.checkState():
-            self.ExportItems.append(item)
-        else:
-            self.ExportItems.remove(item)
+        #print(item.parent()) 
+        if item.VPKItemType == 'File':
+            if item.checkState():
+                self.ExportItems.append(item)
+            else:
+                self.ExportItems.remove(item)
+        elif item.VPKItemType == 'Dir':
+            if item.checkState():
+                for Item in item.VPKChildren:
+                    Item.setCheckState(2)
+                    self.ExportItems.append(Item)
+                item.setCheckState(2)
+            else:
+                
+                for Item in item.VPKChildren:
+                    Item.setCheckState(0)
+                    self.ExportItems.remove(Item)
+                
 
     def DirectoryMagic(self,path,parent=None,wPath=''):
         #A Magic function that uses R E C U R S I O N!
@@ -220,12 +243,15 @@ class PYCFScape(QMainWindow):
 
             thingItem.setEditable(False)
             thingItem.setIcon(QIcon.fromTheme('document'))
+
+            thingItem.setCheckable(True)
             
             if type(path[thing]) == dict: #If it's a dictionary, it's a folder.
                 thingItem.setIcon(QIcon.fromTheme('folder-new'))
                 self.DirectoryMagic(path[thing],thingItem,wwPath)
+                thingItem.setType('Dir')
             else:
-                thingItem.setCheckable(True)
+                thingItem.setType('File')
             if not parent: self.DirectoryModel.appendRow(thingItem)
             else: parent.appendRow(thingItem)
 
