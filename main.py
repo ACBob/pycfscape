@@ -71,7 +71,7 @@ THE SOFTWARE.
 """
 
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory
 from PyQt5.QtGui import QStandardItem, QIcon, QStandardItemModel
 from PyQt5.QtCore import QSize
 
@@ -110,7 +110,7 @@ class PYCFScape(QMainWindow):
         self.VPKDir = ''
         self.ExportItems = []
 
-        self.OptionsMenu = options.PYCFScapeOptionsWindow()
+        self.OptionsMenu = options.PYCFScapeOptionsWindow(app) 
 
         self.Setup()
 
@@ -278,6 +278,7 @@ class PYCFScape(QMainWindow):
         return filename
 
 def main():
+    global app
     app = QApplication(sys.argv)
     Program = PYCFScape()
     sys.exit(app.exec_())

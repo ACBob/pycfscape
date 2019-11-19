@@ -1,2 +1,3 @@
 [config]
 path = "./EXPORT/"
+theme = "Fusion"

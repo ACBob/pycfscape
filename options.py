@@ -71,8 +71,8 @@ THE SOFTWARE.
 
 """
 
-from PyQt5.QtWidgets import qApp, QAction, QWidget, QApplication, QMainWindow, QTabWidget, QLineEdit, QGroupBox, QGridLayout, QLabel, QPushButton
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import qApp, QAction, QWidget, QApplication, QMainWindow, QTabWidget, QLineEdit, QGroupBox, QGridLayout, QLabel, QPushButton, QComboBox, QStyleFactory
+from PyQt5.QtGui import QStandardItem, QIcon, QStandardItemModel
 from PyQt5.QtCore import QSize, Qt
 
 import toml
@@ -80,7 +80,7 @@ import sys
 
 class PYCFScapeOptionsWindow(QMainWindow):
     
-    def __init__(self):
+    def __init__(self,app):
         super().__init__()
 
         self.OptionsFile = open('./options.toml','r+')
@@ -88,8 +88,9 @@ class PYCFScapeOptionsWindow(QMainWindow):
 
         print(self.Options)
 
-        self.Setup()
-    def Setup(self):
+        self.Setup(app)
+    def Setup(self,app):
+        self.app = app
         #Winow Information & Such
         self.setWindowTitle('PYCFScape')
         self.setMinimumSize(QSize(500,250))
@@ -118,6 +119,13 @@ class PYCFScapeOptionsWindow(QMainWindow):
         self.ApplyAndSaveButton = QPushButton('Apply and Save')
         self.ApplyAndSaveButton.clicked.connect(self.SaveOptions)
 
+        self.ThemesComboBox = QComboBox(self)
+        self.ThemesComboBoxLabel = QLabel('Theme')
+        self.ThemesComboBoxLabel.setAlignment(Qt.AlignLeft)
+        self.ThemesComboBoxModel = QStandardItemModel()
+        
+        self.SetupThemeComboBox()
+
         #AboutTab Content
         self.AboutLabel = QLabel(About)
         self.AboutLabel.setAlignment(Qt.AlignLeft)
@@ -127,6 +135,10 @@ class PYCFScapeOptionsWindow(QMainWindow):
         self.GenericTabContentLayout.addWidget(self.PathEditLabel,0,0)
         self.GenericTabContentLayout.addWidget(self.PathEditSetButton,0,2)
         self.GenericTabContentLayout.addWidget(self.ApplyAndSaveButton,3,0)
+        self.GenericTabContentLayout.addWidget(self.ThemesComboBox,1,1)
+
+        self.ThemesComboBox.currentIndexChanged.connect(self.SetTheme)
+        self.GenericTabContentLayout.addWidget(self.ThemesComboBoxLabel,1,0)
 
         self.AboutTabContentLayout.addWidget(self.AboutLabel,0,0)
 
@@ -137,6 +149,24 @@ class PYCFScapeOptionsWindow(QMainWindow):
     def SetPath(self):
         self.Options['config']['path'] = self.PathEdit.text()
         print(self.Options)
+
+    def SetTheme(self):
+        self.Options['config']['theme'] = self.ThemesComboBox.currentText()
+        self.app.setStyle(QStyleFactory.create(self.Options['config']['theme']))
+
+    def SetupThemeComboBox(self):
+        self.app.setStyle(QStyleFactory.create(self.Options['config']['theme']))
+        index = 0
+        curThemeIndex = 0
+        for i in QStyleFactory.keys():
+            Item = QStandardItem(i)
+            self.ThemesComboBoxModel.appendRow(Item)
+            if Item.text() == self.Options['config']['theme']:
+                curThemeIndex = index
+            index+=1
+
+        self.ThemesComboBox.setModel(self.ThemesComboBoxModel)
+        self.ThemesComboBox.setCurrentIndex(curThemeIndex)
 
     def SaveOptions(self):
         self.OptionsFile.seek(0)
