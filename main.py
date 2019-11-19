@@ -70,10 +70,10 @@ THE SOFTWARE.
 
 """
 
-from PyQt5.QtWidgets import qApp, QAction, QMainWindow, QApplication, QWidget, QToolTip, QPushButton, QToolBar, QSplitter, QHBoxLayout
-from PyQt5.QtWidgets import QFileDialog, QTextEdit, QDialog, QGridLayout, QGroupBox, QLabel, QFontDialog, QMessageBox, QStyleFactory, QFrame, QTreeView
-from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QStandardItem
-from PyQt5.QtCore import QSize, pyqtSlot, Qt
+
+from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog
+from PyQt5.QtGui import QStandardItem, QIcon, QStandardItemModel
+from PyQt5.QtCore import QSize
 
 import sys
 import os
