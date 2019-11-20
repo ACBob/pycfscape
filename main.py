@@ -86,6 +86,8 @@ import json
 
 import options
 
+import pathlib
+
 class VPKItem(QStandardItem):
 
     def __init__(self,info,ItemType=''):
@@ -94,12 +96,33 @@ class VPKItem(QStandardItem):
         self.VPKItemType = ItemType
         self.VPKChildren = []
 
+        self.figureOutIcon(pathlib.Path(info).suffix)
+
     def setType(self,Type):
         self.VPKItemType = Type
 
     def appendRow(self,thing):
         super().appendRow(thing)
         self.VPKChildren.append(thing)
+
+    def figureOutIcon(self,fileext):
+        #print(fileext)
+        if fileext in ['.txt','.vmt','.cfg','.ini','.vmf']:
+            print("text",fileext)
+            self.setIcon(QIcon.fromTheme('text-x-generic'))
+        elif fileext in ['.bik']:
+            print("video",fileext)
+            self.setIcon(QIcon.fromTheme('video-x-generic'))
+        elif fileext in ['.wav','.mp3']:
+            print("audio",fileext)
+            self.setIcon(QIcon.fromTheme('audio-x-generic'))
+        elif fileext in ['.vtf','.bmp']:
+            print("image",fileext)
+            self.setIcon(QIcon.fromTheme('image-x-generic'))
+        else:
+            print("other",fileext)
+            self.setIcon(QIcon.fromTheme('document'))
+            
 
 class PYCFScape(QMainWindow):
 
@@ -242,7 +265,7 @@ class PYCFScape(QMainWindow):
             thingItem.setText(thing)
 
             thingItem.setEditable(False)
-            thingItem.setIcon(QIcon.fromTheme('document'))
+            #thingItem.setIcon(QIcon.fromTheme('document'))
 
             thingItem.setCheckable(True)
             
