@@ -108,19 +108,19 @@ class VPKItem(QStandardItem):
     def figureOutIcon(self,fileext):
         #print(fileext)
         if fileext in ['.txt','.vmt','.cfg','.ini','.vmf']:
-            print("text",fileext)
+            #print("text",fileext)
             self.setIcon(QIcon.fromTheme('text-x-generic'))
         elif fileext in ['.bik']:
-            print("video",fileext)
+            #print("video",fileext)
             self.setIcon(QIcon.fromTheme('video-x-generic'))
         elif fileext in ['.wav','.mp3']:
-            print("audio",fileext)
+            #print("audio",fileext)
             self.setIcon(QIcon.fromTheme('audio-x-generic'))
         elif fileext in ['.vtf','.bmp']:
-            print("image",fileext)
+            #print("image",fileext)
             self.setIcon(QIcon.fromTheme('image-x-generic'))
         else:
-            print("other",fileext)
+            #print("other",fileext)
             self.setIcon(QIcon.fromTheme('document'))
             
 
