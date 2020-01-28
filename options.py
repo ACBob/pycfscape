@@ -77,12 +77,16 @@ from PyQt5.QtCore import QSize, Qt
 
 import toml
 import sys
+import os
 
 class PYCFScapeOptionsWindow(QMainWindow):
     
     def __init__(self,app):
         super().__init__()
 
+        if not os.path.exists('./options.toml'):
+            self.OptionsFile = open('./options.toml','w+')
+            self.OptionsFile.write(toml.dumps({'config': {'path': './EXPORT/', 'theme': 'Fusion'}}))
         self.OptionsFile = open('./options.toml','r+')
         self.Options = toml.loads(self.OptionsFile.read())
 
