@@ -63,7 +63,7 @@ THE SOFTWARE.
 """
 
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory, QMessageBox, QSplitter
 from PyQt5.QtGui import QStandardItem, QIcon, QStandardItemModel
 from PyQt5.QtCore import QSize
 
@@ -178,6 +178,8 @@ class PYCFScape(QMainWindow):
         #Setup Content Layout & Container
         self.Content = QGroupBox()
         self.ContentLayout = QGridLayout()
+        self.ContentB = QGroupBox()
+        self.ContentBLayout = QGridLayout()
 
         #Setup UI Elements
         self.DirectoryList = QTreeView()
@@ -187,6 +189,14 @@ class PYCFScape(QMainWindow):
 
         self.DirectoryModel = QStandardItemModel(self.DirectoryList)
         self.DirectoryList.setModel(self.DirectoryModel)
+        
+        self.VerticalSplitter = QSplitter()
+
+        self.CurDirectoryList = QTreeView()
+        self.CurDirectoryModel = QStandardItemModel(self.CurDirectoryList)
+        self.CurDirectoryList.setModel(self.CurDirectoryModel)
+
+        self.ContentBLayout.addWidget(self.CurDirectoryList,0,0)
         
         #Setup Actions
         self.OpenAction = QAction('&Open...',self)
@@ -203,7 +213,6 @@ class PYCFScape(QMainWindow):
         self.OptionsAction.setStatusTip('Change some things')
         self.OptionsAction.triggered.connect(self.OptionsMenu.show)
 
-
         self.Menu = self.menuBar()
         self.FileMenu = self.Menu.addMenu('&File')
         self.FileMenu.addAction(self.OpenAction)
@@ -213,8 +222,10 @@ class PYCFScape(QMainWindow):
         
         #Sort out Layout placements and such.
         self.Content.setLayout(self.ContentLayout)
-        self.setCentralWidget(self.Content)
-
+        self.ContentB.setLayout(self.ContentBLayout)
+        self.VerticalSplitter.addWidget(self.Content)
+        self.VerticalSplitter.addWidget(self.ContentB)
+        self.setCentralWidget(self.VerticalSplitter)
 
         self.DirectoryModel.itemChanged.connect(self.VPKItemClicked)
 
