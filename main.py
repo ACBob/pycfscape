@@ -65,7 +65,7 @@ THE SOFTWARE.
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory, QMessageBox, QSplitter
 from PyQt5.QtGui import QStandardItem, QIcon, QStandardItemModel
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 
 import sys
 import os
@@ -225,6 +225,7 @@ class PYCFScape(QMainWindow):
         self.ContentB.setLayout(self.ContentBLayout)
         self.VerticalSplitter.addWidget(self.Content)
         self.VerticalSplitter.addWidget(self.ContentB)
+        #self.VerticalSplitter.
         self.setCentralWidget(self.VerticalSplitter)
 
         self.DirectoryModel.itemChanged.connect(self.VPKItemClicked)
@@ -236,8 +237,14 @@ class PYCFScape(QMainWindow):
         dictPaths = pathtodir.get_path_dict(paths)
         self.DirectoryMagic(dictPaths)
 
+    def DirItemClicked(self,item,last_item):
+        print(item,last_item)
+        if item:
+            for i in item.VPKChildren:
+                self.CurDirectoryModel.appendRow(i)
+
     def VPKItemClicked(self,item):
-        #print(item.parent()) 
+        #print(item.parent())
         if item.VPKItemType == 'File':
             if item.checkState():
                 self.ExportItems.append(item)
