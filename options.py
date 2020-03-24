@@ -69,15 +69,19 @@ import toml
 import sys
 import os
 
+this_path = os.path.split(__file__)[:-1][0]
+
+print("Setting path to", this_path)
+
 class PYCFScapeOptionsWindow(QMainWindow):
     
     def __init__(self,app):
         super().__init__()
 
-        if not os.path.exists('./options.toml'):
-            self.OptionsFile = open('./options.toml','w+')
-            self.OptionsFile.write(toml.dumps({'config': {'path': './EXPORT/', 'theme': 'Fusion'}}))
-        self.OptionsFile = open('./options.toml','r+')
+        if not os.path.exists(this_path+'/options.toml'):
+            self.OptionsFile = open(this_path+'/options.toml','w+')
+            self.OptionsFile.write(toml.dumps({'config': {'path': this_path+'/EXPORT/', 'theme': 'Fusion'}}))
+        self.OptionsFile = open(this_path+'/options.toml','r+')
         self.Options = toml.loads(self.OptionsFile.read())
 
         print(self.Options)
@@ -88,7 +92,7 @@ class PYCFScapeOptionsWindow(QMainWindow):
         #Winow Information & Such
         self.setWindowTitle('PYCFScape')
         self.setMinimumSize(QSize(500,250))
-        self.setWindowIcon(QIcon('./res/Icon64.ico'))
+        self.setWindowIcon(QIcon(this_path+'/res/Icon64.ico'))
 
         #Setup Content Layout & Container
         self.GenericTabContentLayout = QGridLayout()

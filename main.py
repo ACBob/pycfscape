@@ -173,7 +173,7 @@ class PYCFScape(QMainWindow):
         #Winow Information & Such
         self.setWindowTitle('PYCFScape')
         self.setMinimumSize(QSize(750,500))
-        self.setWindowIcon(QIcon('./res/Icon64.ico'))
+        self.setWindowIcon(QIcon(options.this_path+'/res/Icon64.ico'))
 
         #Setup Content Layout & Container
         self.Content = QGroupBox()
