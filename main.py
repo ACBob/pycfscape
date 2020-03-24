@@ -63,7 +63,7 @@ THE SOFTWARE.
 """
 
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory, QMessageBox, QSplitter
+from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory, QMessageBox, QSplitter, QTextEdit, QStatusBar
 from PyQt5.QtGui import QStandardItem, QIcon, QStandardItemModel
 from PyQt5.QtCore import QSize, Qt
 
@@ -130,6 +130,7 @@ class PYCFScape(QMainWindow):
         self.Setup()
 
     def LoadVPK(self,file):
+        self.StatusIndicator.showMessage("Opening {}.".format(file))
         print('Opening {}'.format(file))
         self.DirectoryModel.clear()
         self.ExportItems = []
@@ -147,6 +148,7 @@ class PYCFScape(QMainWindow):
         self.VPKDir = file
 
         self.HandleVPK(self.VPK)
+        self.StatusIndicator.clearMessage()
 
     def ExportVPKFiles(self):
         print('Exporting files from {}'.format('VPK'))
@@ -192,11 +194,14 @@ class PYCFScape(QMainWindow):
         
         self.VerticalSplitter = QSplitter()
 
-        self.CurDirectoryList = QTreeView()
-        self.CurDirectoryModel = QStandardItemModel(self.CurDirectoryList)
-        self.CurDirectoryList.setModel(self.CurDirectoryModel)
+        self.ExportListDisplay = QTextEdit()
+        self.ExportListDisplay.setLineWrapMode(0)
+        self.ExportListDisplay.setReadOnly(True)
 
-        self.ContentBLayout.addWidget(self.CurDirectoryList,0,0)
+        self.ContentBLayout.addWidget(self.ExportListDisplay,0,0)
+
+        #Status
+        self.StatusIndicator = self.statusBar()
         
         #Setup Actions
         self.OpenAction = QAction('&Open...',self)
@@ -252,17 +257,27 @@ class PYCFScape(QMainWindow):
                 self.ExportItems.remove(item)
         elif item.VPKItemType == 'Dir':
             if item.checkState():
+                self.StatusIndicator.showMessage("Selecting")
+                item.cVPKChildren = []
                 for Item in item.VPKChildren:
                     Item.setCheckState(2)
                     self.ExportItems.append(Item)
+
                 item.setCheckState(2)
             else:
-                
+                self.StatusIndicator.showMessage("Deselecting")
                 for Item in item.VPKChildren:
                     Item.setCheckState(0)
                     self.ExportItems.remove(Item)
-                
 
+        self.StatusIndicator.showMessage("Changing Export List")
+        ExportText = []
+        for Export in self.ExportItems:
+            ExportText.append(Export.PathInfo)
+        self.ExportListDisplay.setPlainText('\n'.join(ExportText))
+
+        self.StatusIndicator.clearMessage()
+                              
     def DirectoryMagic(self,path,parent=None,wPath=''):
         #A Magic function that uses R E C U R S I O N!
 
