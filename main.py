@@ -169,7 +169,9 @@ class PYCFScape(QMainWindow):
 
     def OpenVPK(self):
         File = self.OpenDialog('Open VPK','Valve Pack Files (*.vpk)')
-        if not File == '': self.LoadVPK(File)
+        if not File == '':
+            self.LoadVPK(File)
+            self.ExportListDisplay.setPlainText("")
 
     def Setup(self):
         #Winow Information & Such
