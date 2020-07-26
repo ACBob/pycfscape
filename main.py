@@ -281,7 +281,7 @@ class PYCFScape(QMainWindow):
     def DirectoryMagic(self,path,parent=None,wPath=''):
         #A Magic function that uses R E C U R S I O N!
 
-        for thing in path:
+        for thing in sorted(path):
 
             wwPath = wPath+'/{}'.format(thing)
 
