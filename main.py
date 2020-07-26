@@ -63,9 +63,9 @@ THE SOFTWARE.
 """
 
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QGroupBox, QGridLayout, QTreeView, QAction, QFileDialog, QStyleFactory, QMessageBox, QSplitter, QTextEdit, QStatusBar
 from PyQt5.QtGui import QStandardItem, QIcon, QStandardItemModel
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 
 import sys
 import os
@@ -130,6 +130,7 @@ class PYCFScape(QMainWindow):
         self.Setup()
 
     def LoadVPK(self,file):
+        self.StatusIndicator.showMessage("Opening {}.".format(file))
         print('Opening {}'.format(file))
         self.DirectoryModel.clear()
         self.ExportItems = []
@@ -147,6 +148,7 @@ class PYCFScape(QMainWindow):
         self.VPKDir = file
 
         self.HandleVPK(self.VPK)
+        self.StatusIndicator.clearMessage()
 
     def ExportVPKFiles(self):
         print('Exporting files from {}'.format('VPK'))
@@ -167,7 +169,9 @@ class PYCFScape(QMainWindow):
 
     def OpenVPK(self):
         File = self.OpenDialog('Open VPK','Valve Pack Files (*.vpk)')
-        if not File == '': self.LoadVPK(File)
+        if not File == '':
+            self.LoadVPK(File)
+            self.ExportListDisplay.setPlainText("")
 
     def Setup(self):
         #Winow Information & Such
@@ -178,6 +182,8 @@ class PYCFScape(QMainWindow):
         #Setup Content Layout & Container
         self.Content = QGroupBox()
         self.ContentLayout = QGridLayout()
+        self.ContentB = QGroupBox()
+        self.ContentBLayout = QGridLayout()
 
         #Setup UI Elements
         self.DirectoryList = QTreeView()
@@ -187,6 +193,17 @@ class PYCFScape(QMainWindow):
 
         self.DirectoryModel = QStandardItemModel(self.DirectoryList)
         self.DirectoryList.setModel(self.DirectoryModel)
+        
+        self.VerticalSplitter = QSplitter()
+
+        self.ExportListDisplay = QTextEdit()
+        self.ExportListDisplay.setLineWrapMode(0)
+        self.ExportListDisplay.setReadOnly(True)
+
+        self.ContentBLayout.addWidget(self.ExportListDisplay,0,0)
+
+        #Status
+        self.StatusIndicator = self.statusBar()
         
         #Setup Actions
         self.OpenAction = QAction('&Open...',self)
@@ -203,7 +220,6 @@ class PYCFScape(QMainWindow):
         self.OptionsAction.setStatusTip('Change some things')
         self.OptionsAction.triggered.connect(self.OptionsMenu.show)
 
-
         self.Menu = self.menuBar()
         self.FileMenu = self.Menu.addMenu('&File')
         self.FileMenu.addAction(self.OpenAction)
@@ -213,8 +229,11 @@ class PYCFScape(QMainWindow):
         
         #Sort out Layout placements and such.
         self.Content.setLayout(self.ContentLayout)
-        self.setCentralWidget(self.Content)
-
+        self.ContentB.setLayout(self.ContentBLayout)
+        self.VerticalSplitter.addWidget(self.Content)
+        self.VerticalSplitter.addWidget(self.ContentB)
+        #self.VerticalSplitter.
+        self.setCentralWidget(self.VerticalSplitter)
 
         self.DirectoryModel.itemChanged.connect(self.VPKItemClicked)
 
@@ -225,8 +244,14 @@ class PYCFScape(QMainWindow):
         dictPaths = pathtodir.get_path_dict(paths)
         self.DirectoryMagic(dictPaths)
 
+    def DirItemClicked(self,item,last_item):
+        print(item,last_item)
+        if item:
+            for i in item.VPKChildren:
+                self.CurDirectoryModel.appendRow(i)
+
     def VPKItemClicked(self,item):
-        #print(item.parent()) 
+        #print(item.parent())
         if item.VPKItemType == 'File':
             if item.checkState():
                 self.ExportItems.append(item)
@@ -234,21 +259,31 @@ class PYCFScape(QMainWindow):
                 self.ExportItems.remove(item)
         elif item.VPKItemType == 'Dir':
             if item.checkState():
+                self.StatusIndicator.showMessage("Selecting")
+                item.cVPKChildren = []
                 for Item in item.VPKChildren:
                     Item.setCheckState(2)
                     self.ExportItems.append(Item)
+
                 item.setCheckState(2)
             else:
-                
+                self.StatusIndicator.showMessage("Deselecting")
                 for Item in item.VPKChildren:
                     Item.setCheckState(0)
                     self.ExportItems.remove(Item)
-                
 
+        self.StatusIndicator.showMessage("Changing Export List")
+        ExportText = []
+        for Export in self.ExportItems:
+            ExportText.append(Export.PathInfo)
+        self.ExportListDisplay.setPlainText('\n'.join(ExportText))
+
+        self.StatusIndicator.clearMessage()
+                              
     def DirectoryMagic(self,path,parent=None,wPath=''):
         #A Magic function that uses R E C U R S I O N!
 
-        for thing in path:
+        for thing in sorted(path):
 
             wwPath = wPath+'/{}'.format(thing)
 
