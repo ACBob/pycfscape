@@ -13,7 +13,7 @@ And for VPK,
 And then you just run main.py and it should work.
 
 
-##What exactly is this branch?
+## What exactly is this branch?
 Essentially, it began as a branch to try and mimic the original GCFScape. But, its sort-of become the Testing branch.
 
 If there's ever a re-write of this program, you can damn well bet it'll be in this branch.
